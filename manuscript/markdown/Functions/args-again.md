@@ -1,49 +1,49 @@
-## I'd Like to Have Some Arguments. Again. {#arguments-again}
+## Me Gustaría tener Tener Algunos Argumentos. Otra vez
 
-As we've discussed, when a function is applied to arguments (or "called"), JavaScript binds the values of arguments to the function's argument names in an environment created for the function's execution. What we didn't discuss is that JavaScript also binds some "magic" names in addition to any you put in the argument list.
+Como hemos hablado, cuando se aplican argumentos a una función (o "se la llama con argumentos"), JavaScript enlaza los valores de los argumentos de la función a sus nombres en el entorno creado para la ejecución de la función. De lo que no hemos hablado, es que también enlaza algunos nombres "mágicos" a cada uno de los argumentos de la lista.
 
-You should never attempt to define your own bindings against these names. Consider them read-only at all times. The first is called `this` and it is bound to something called the function's [context](#context). We will explore that when we start discussing objects and classes. The second is very interesting, it's called `arguments`, and the most interesting thing about it is that it contains a list of arguments passed to the function:
+Nunca deberías intentar definir tus propios enlaces hacia estos nombres. Considéralos siempre de sólo lectura. El primero se llama `this` y se enlaza a algo llamado el [context](#context) de la función. Lo veremos cuando vayamos a hablar de los objetos y las clases. El segundo es muy interesante, se llama `arguments`, y lo más interesante es que contiene una lista de los argumentos que se le pasan a la función:
 
-    function plus (a, b) {
+    function suma (a, b) {
       return arguments[0] + arguments[1]
     }
-    
-    plus(2,3)
-      //=> 5
-      
-Although `arguments` looks like an array, it isn't an array:[^pojo] It's more like an object[^pojo] that happens to bind some values to properties with names that look like integers starting with zero:
 
-    function args (a, b) {
+    suma(2,3)
+      //=> 5
+
+Aunque `arguments` parece un array, no es una array:[^pojo] Se parece más un objeto:[^pojo] lo que ocurre es que enlaza los valores a propiedades cuyos nombres parecen enteros y empezando desde cero:
+
+    function obtenerArgumentos (a, b) {
       return arguments
     }
-    
-    args(2,3)
+
+    obtenerArgumentos(2,3)
       //=> { '0': 2, '1': 3 }
 
-`arguments` always contains all of the arguments passed to a function, regardless of how many are declared. Therefore, we can write `plus` like this:
 
-    function plus () {
+`arguments` siempre contiene todos los argumentos pasados a la función, independientemente de cuantos se declararon. Por lo tanto, podemos escribir `suma` de esta manera:
+
+    function suma () {
       return arguments[0] + arguments[1]
     }
-    
-    plus(2,3)
+
+    suma(2,3)
       //=> 5
 
-When discussing objects, we'll discuss properties in more depth. Here's something interesting about `arguments`:
+Cuando hablemos sobre los objetos, hablaremos de propiedades en más detalle. Esta es una propiedad interesante de `arguments`:
 
-    function howMany () {
+    function cuantosArgumentosHay () {
       return arguments['length']
     }
-    
-    howMany()
+
+    cuantosArgumentosHay()
       //=> 0
-    
-    howMany('hello')
+
+    cuantosArgumentosHay('hola')
       //=> 1
-    
-    howMany('sharks', 'are', 'apex', 'predators')
+
+    cuantosArgumentosHay('los', 'tiburones', 'son', 'superpredadores')
       //=> 4
-      
-The most common use of the `arguments` binding is to build functions that can take a variable number of arguments. We'll see it used in many of the recipes, starting off with [partial application](#simple-partial) and [ellipses](#ellipses).
-      
+
+El uso más común de `arguments` es construir funciones que puedan coger un número variable de argumentos. Veremos como se usan en varias recetas, partiendo de [partial application](#simple-partial) y [ellipses](#ellipses).
 [^pojo]: We'll look at [arrays](#arrays) and [plain old javascript objects](#objects) in depth later.
