@@ -1,76 +1,76 @@
-## Building Blocks {#buildingblocks}
+## Construyendo Bloques {#buildingblocks}
 
-When you look at functions within functions in JavaScript, there's a bit of a "spaghetti code" look to it. The strength of JavaScript is that you can do anything. The weakness is that you will. There are ifs, fors, returns, everything thrown higgledy piggledy together. Although you needn't restrict yourself to a small number of simple patterns, it can be helpful to understand the patterns so that you can structure your code around some basic building blocks.
+Cuando ves funciones dentro de funciones en JavaScript, parece un poco de "código espagueti". La potencia de JavaScript reside en que puedes hacer cualquier cosa. La debilidad es que puedes hacerlo. Hay ifs, fors, returns, todo mezclado sin ningún tipo de orden. Aunque no es necesario que te limites a un número pequeño de patrones simples, entender estos patrones te puede ayudar para estructurar tu código en bloques básicos
 
-### composition
+### composición
 
-One of the most basic of these building blocks is *composition*:
+Uno de los bloques más básicos es la *composición*:
 
-    function cookAndEat (food) {
-      return eat(cook(food))
+    function cocinarYComer (comida) {
+      return comer(cocinar(comida))
     }
-    
-It's really that simple: Whenever you are chaining two or more functions together, you're composing them. You can compose them with explicit JavaScript code as we've just done. You can also generalize composition with the B Combinator or "compose" that we saw in [Combinators and Decorators](#combinators):
 
-    function compose (a, b) {
+En realidad es muy simple: Siempre que encadenes dos o más funciones juntas, estás haciendo una composición de las mismas. Puedes componerlas de forma explícita con código JavaScript como acabamos de hacer. También puedes generalizar una composición con el Combinador B o "componer" como vimos en [Combinadores y Decoradores](#combinators):
+
+    function componer (a, b) {
       return function (c) {
         return a(b(c))
       }
     }
 
-    var cookAndEat = compose(eat, cook);
-    
-If that was all there was to it, composition wouldn't matter much. But like many patterns, using it when it applies is only 20% of the benefit. The other 80% comes from organizing your code such that you can use it: Writing functions that can be composed in various ways.
+    var cocinarYComer = componer(comer, cocinar);
 
-In the recipes, we'll look at a decorator called  [once](#once): It ensures that a function can only be executed once. Thereafter, it does nothing. Once is useful for ensuring that certain side effects are not repeated. We'll also look at [maybe](#maybe): It ensures that a function does nothing if it is given nothing (like `null` or `undefined`) as an argument.
+Si sólo fuera esto, la composición no importaría demasiado. Pero como muchos patrones, usarlos cuando corresponde es sólo el 20% del beneficio. El otro 80% viene por organizar tu código de manera que puedas usarlo: Escribiendo funciones que se pueden componer de varias maneras.
 
-Of course, you needn't use combinators to implement either of these ideas, you can use if statements. But `once` and `maybe` compose, so you can chain them together as you see fit:
+En las recetas, le echaremos un vistazo a un decorador llamado [once](#once): Se asegura de que una función sólo se ejecuta una vez. Después de eso, no hace nada. Once es útil para asegurarse de que ciertos efectos no se repiten. También echaremos un vistazo a [maybe](#maybe): Que se asegura de que una función no haga nada si no se le pasa nada (como `null` o `undefined`) como argumento.
 
-    function actuallyTransfer(from, to, amount) {
-      // do something
+Por supuesto, no necesitas usar combinadores para implementar cualquiera de estas ideas, puedes utilizar sentencias if. Pero `once` y `maybe` componen, por lo qe puedes encadenarlos juntos si lo necesitas.
+
+    function transferenciaEnRealidad(desde, a, cantidad) {
+      // hacer algo
     }
-    
-    var invokeTransfer = once(maybe(actuallyTransfer(...)));
-    
-### partial application
 
-Another basic building block is *partial application*. When a function takes multiple arguments, we "apply" the function to the arguments by evaluating it with all of the arguments, producing a value. But what if we only supply some of the arguments? In that case, we can't get the final value, but we can get a function that represents *part* of our application.
+    var invocarTransferencia = once(maybe(transferenciaEnRealidad(...)));
 
-Code is easier than words for this. The [Underscore] library provides a higher-order function called *map*.[^headache] It applies another function to each element of an array, like this:
+### aplicación parcial
+
+Otro bloque básico de construcción es la *aplicación parcial*. Cuando una función obtiene múltiples parámetros, "aplicamos" la función a los parámetros evaluándola con cada uno de los parámetros, produciendo un valor. Pero ¿qué pasa si sólo suministramos algunos de los parámetros? En ese caso, no podemos llegar al valor final, pero podemos obtener una función que represente "parte" de nuestra aplicación.
+
+El código es más fácil que las palabras para esto. La librería [Underscore] provee una función de alto orden llamada *map*.[^headache] Aplica otra función a cada uno de los elementos de una array, como esto:
 
     _.map([1, 2, 3], function (n) { return n * n })
       //=> [1, 4, 9]
-      
-This code implements a partial application of the map function by applying the function `function (n) { return n * n }` as its second argument:
 
-    function squareAll (array) {
+Este código implementa una aplicación parcial de la función map aplicando la función `function (n) { return n * n }` como su segundo argumento:
+
+    function calculaElCuadradoDeTodo (array) {
       return _.map(array, function (n) { return n * n })
     }
 
-The resulting function--`squareAll`--is still the map function, it's just that we've applied one of its two arguments already. `squareAll` is nice, but why write one function every time we want to partially apply a function to a map? We can abstract this one level higher. `mapWith` takes any function as an argument and returns a partially applied map function.
+La función resultante--`calculaElCuadradoDeTodo`--sigue siendo la función map, es sólo que ya hemos aplicado uno de sus parámetros. `calculaElCuadradoDeTodo` es bonita, pero ¿por qué escribir una función cada vez que queremos aplicar parcialmente una función a map? Podemos abstraer esto a un nivel más alto. `mapWith` toma cualquier función como parámetro y devuelve una aplicación parcial de la función map.
 
     function mapWith (fn) {
       return function (array) {
         return _.map(array, fn)
       }
     }
-    
-    var squareAll = mapWith(function (n) { return n * n });
-    
-    squareAll([1, 2, 3])
+
+    var calculaElCuadradoDeTodo = mapWith(function (n) { return n * n });
+
+    calculaElCuadradoDeTodo([1, 2, 3])
       //=> [1, 4, 9]
 
-We'll discuss mapWith again in [the recipes](#mapWith). The important thing to see is that partial application is orthogonal to composition, and that they both work together nicely:
+Volveremos a hablar de mapWith en [las recetas](#mapWith). Lo importante aquí es ver que la aplicación parcial es ortogonal a la composición, y que ambos trabajan juntos perfectamente:
 
-    var safeSquareAll = mapWith(maybe(function (n) { return n * n }));
-    
-    safeSquareAll([1, null, 2, 3])
+    var calculaElCuadradoDeTodoDeFormaSegura = mapWith(maybe(function (n) { return n * n }));
+
+    calculaElCuadradoDeTodoDeFormaSegura([1, null, 2, 3])
       //=> [1, null, 4, 9]
 
-We generalized composition with the `compose` combinator. Partial application also has a combinator, which we'll see in the [partial](#partial) recipe.
+Hemos generalizado la composición con el combinador `componer`. La aplicación parcial también tiene un combinador, el que veremos en la receta [partial](#partial).
 
-[^bind]: Modern JavaScript provides a limited form of partial application through the `Function.prototype.bind` method. This will be discussed in greater length when we look at function contexts.
+[^bind]: En JavaScript Moderno se provee de una forma limitada de aplicación parcial a través del método `Function.prototype.bind`. Esto se discutirá ampliamente cuando revisemos los contextos de una función.
 
-[^headache]: Modern JavaScript implementations provide a map method for arrays, but Underscore's implementation also works with older browsers if you are working with that headache.
+[^headache]: En JavaScript Moderno se provee de un método map para arrays, pero la implementación de Underscore también trabaja con navegadores más antiguos si te estás encontrando con este dolor de cabeza
 
 [Underscore]: http://underscorejs.org
